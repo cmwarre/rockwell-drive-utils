@@ -36,7 +36,7 @@ class PF755Driver(object):
             data_type=data_type
         )
 
-    def read_parameter(self, port: int, parameter: int):
+    def read_parameter(self, port: int, parameter: int, data_type: Optional[Union[Type[DataType], DataType]] = None):
         """
         :param port:
         :param parameter:
@@ -74,15 +74,19 @@ class PF755Driver(object):
 
         instance = parameter + 0 if port <= 0 else 1024 * port + 17408
 
+
+
         response = self.connection.generic_message(
             service=Services.get_attribute_single,
             class_code=b"\x9F",  # 0x9F = DPI Parameter
             attribute=b"\x0A",  # parameter value attribute
             instance=instance,
-            data_type=REAL
+            data_type=data_type if data_type is not None else REAL
         )
 
         if not response:
             raise (ResponseError(f"Response did not return valid data - {response.error}"))
+
+        print(f"{port}\t{parameter}\t{response.value}")
 
         return response
